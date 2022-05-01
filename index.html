@@ -1,0 +1,219 @@
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style type="text/css">
+      :root {
+        --item-height: 100px;
+        --item-width: 250px;
+        
+        --content-grid-column-template: repeat(auto-fit, minmax(var(--item-width), 1fr));
+        --button-grid-column-template: var(--item-height) 1fr;
+        --title-font-size: 15pt;
+
+        --body-padding: 30px;
+
+        --background-color: #eeeeee;
+
+        --border-style: none;
+        --border-radius: 10px;
+
+        --text-display: block;
+        --grid-gap: 1rem;
+      }
+
+      @media only screen 
+      and (max-width : 750px) {
+        :root {
+          --item-height: 75px;
+          --item-width: var(--item-height);
+
+          --content-grid-column-template: repeat(auto-fill, minmax(var(--item-width), 1fr));
+          --button-grid-column-template: var(--item-height) 1fr;
+
+          --title-font-size: 12pt;
+          --body-padding: 5px;
+
+          --background-color: black;
+
+          --border-style: solid;
+
+          --text-display: none;
+          --grid-gap: 15px;
+        }
+      }
+
+      body {
+        font-family: helvetica, verdana, sans-serif;
+        background-color: var(--background-color);
+        font-size: 15pt;
+        padding: var(--body-padding);
+      }
+
+
+      ul.bookmarks {
+        max-width: 905px;
+        display: grid;
+        align-items: center;
+        margin-left: 15px;
+        margin-right: auto;
+        grid-template-columns: var(--content-grid-column-template);
+        grid-gap: var(--grid-gap);
+        padding: 0px;
+      }
+
+      ul.bookmarks a {
+        display: block;
+        width: var(--item-width);
+        height: var(--item-height);
+
+        border-width: 2px;
+        border-color: #eeeeee;
+        border-style: var(--border-style);
+        border-radius: var(--border-radius);
+
+        text-decoration: none;
+      }
+
+      ul.bookmarks a section {
+        text-align: center;
+
+        height: 100%;
+        width: 100%;
+        display: grid;
+        grid-template-columns: var(--button-grid-column-template);
+        grid-template-rows: auto;
+        align-items: center;
+        justify-items: center;
+        border-radius: var(--border-radius);
+        color: black;
+        overflow-wrap: anywhere;
+      }
+
+      ul.bookmarks section img {
+        max-height: 95%;
+        max-width: 90%; /* chrome and edge are having troubles with max-height. Set max-width as well. 90% was arrived at via experimentation */
+        border-radius: var(--border-radius);
+      }
+
+      ul.bookmarks section span {
+        display: var(--text-display);
+
+        text-align: center;
+        margin-left: 10px;
+        margin-right: 10px;
+        overflow-wrap: break-word;
+        font-size: var(--title-font-size);
+      }
+
+      ul#books {
+        margin-top: var(--item-height);
+      }
+    </style>
+    <script>
+      (function() {
+        
+        let buildPage = () => {
+
+          let bookmarks = [
+            { title: 'rss', url: 'https://feedbin.com/', icon: './rss.png', color: 'white', background: "#ea7819" },
+            { title: 'hacker news', url: 'http://news.ycombinator.com/', icon: './hacker_news.png', color: 'white', background: '#f26522' },
+            { title: 'reddit', url: 'http://www.reddit.com/', icon: './reddit.png', color: 'white', background: '#ff3f18' },
+
+            { title: 'youtube', url: 'https://youtube.com', icon:'./youtube_inverted.png', color: 'white', background: 'red' },
+            { title: 'daring fireball', url: 'http://daringfireball.net/', icon: './daring_fireball.png', color: '#dddddd', background: '#4a525a' },
+            { title: 'r/programming', url: 'http://www.reddit.com/r/programming/', icon: './reddit_programming.png', color: '#9cdcda', background: '#1e1e1e' },
+
+            { title: 'pocket', url: 'https://app.getpocket.com/', icon: './pocket_inverted.png', color: 'white', background: '#e81d67' },
+            { title: 'lwn', url: 'https://lwn.net/', icon: './lwn.png', color: '#ffffff', background: '#000000' },
+            { title: 'post & courier', url: 'https://www.postandcourier.com/', icon: 'p_and_c.png', color: 'white', background: '#1d8acb' },
+
+            { title: 'washington post', url: 'https://www.washingtonpost.com/', icon: './wp_inverse.png', color: 'white', background: 'black' },
+            { title: 'facebook', url: 'http://www.facebook.com/home.php', icon: './facebook.png', color: 'white', background: '#3b5998' },
+            { title: 'new york times', url: 'https://www.nytimes.com/section/todayspaper?redirect_uri=https%3A%2F%2Fwww.nytimes.com%2F', icon: './nyt.png', color: 'white', background: 'black' },
+
+            { title: 'the guardian', url: 'http://www.theguardian.com/us', icon: './guardian.png', color: 'white', background: '#052962' },
+            { title: 'sdmb', url: 'http://boards.straightdope.com/sdmb/index.php', icon: 'sd.png', color: '#ffcc66', background: '#330099' },
+            { title: 'chess', url: 'http://www.chess.com/echess/myhome.html', icon: './chess_inverse.png', color: 'white', background: 'black' }
+
+          ];
+
+          let books = [
+            { title: 'phb', url: 'https://www.dndbeyond.com/sources/phb', icon: './dnd_phb.png', color: 'white', background: 'black' },
+            { title: 'dmg', url: 'https://www.dndbeyond.com/sources/dmg', icon: './dnd_dmg.png', color: 'white', background: 'black' },
+            { title: 'monster manual', url: 'https://www.dndbeyond.com/sources/mm', icon: './dnd_monster_manual.png', color: 'white', background: 'black' },
+
+            { title: 'eberron: rising', url: 'https://www.dndbeyond.com/sources/erftlw', icon: './dnd_erftlw.png', color: 'white', background: 'black' },
+            { title: 'eberron: wayfarer\'s', url: 'https://www.dndbeyond.com/sources/wgte', icon: './dnd_wgte.png', color: 'white', background: 'black' },
+            { title: 'ravnica', url: 'https://www.dndbeyond.com/sources/ggtr', icon: './dnd_ravnica.png', color: 'white', background: 'black' },
+
+            { title: 'xanathar\'s guide', url: 'https://www.dndbeyond.com/sources/xgte', icon: './dnd_xgte.png', color: 'white', background: 'black' },
+            { title: 'tasha\'s cauldron', url: 'https://www.dndbeyond.com/sources/tcoe', icon: './dnd_tasha.png', color: 'white', background: 'black'},
+            { title: 'volo\'s guide to monsters', url: 'https://www.dndbeyond.com/sources/vgtm', icon: './dnd_volos_guide.png', color: 'white', background: 'black' },
+
+            { title: 'mordenkain\'s tome', url: 'https://www.dndbeyond.com/sources/mtof', icon: './dnd_mtof.png', color: 'white', background: 'black' },
+            { title: 'mordenkain\'s folio', url: 'https://www.dndbeyond.com/sources/mffv1', icon: './dnd_mff.png', color: 'white', background: 'black' },
+            { title: 'odysseys of theros', url: 'https://www.dndbeyond.com/sources/moot', icon: './dnd_moot.png', color: 'white', background: 'black' },
+
+            { title: 'fizban\'s treasury of dragons', url: 'https://www.dndbeyond.com/sources/ftod', icon: './dnd_fizbans.png', color: 'white', background: 'black'},
+            { title: 'acquisitions inc', url: 'https://www.dndbeyond.com/sources/ai', icon: './dnd_ai.png', color: 'white', background: 'black' },
+            { title: 'yawning portal', url: 'https://www.dndbeyond.com/sources/tftyp', icon: './dnd_yawning_portal.png', color: 'white', background: 'black' }
+          ];
+
+          let buildBookmarkDisplayIcon = (bookmark) => {
+            let textStyle = '';
+            if (bookmark.color) { textStyle = textStyle + `color: ${bookmark.color} !important; `; };
+
+            let sectionStyle = '';
+            if (bookmark.background) { sectionStyle = sectionStyle + `background-color: ${bookmark.background} !important; `; }
+
+            let anchorStyle = '';
+            if (bookmark.background) { anchorStyle = anchorStyle + `background-color: ${bookmark.background} !important; `; }
+
+            return `<a href="${bookmark.url}" style="${anchorStyle}">` +
+                      `<section style="${sectionStyle}">` +
+                        `<img src="${bookmark.icon}"/>` +
+                        `<span style="${textStyle}">${bookmark.title}</span>` +
+                      `</section>` + 
+                    `</a>`;
+          };
+
+          let buildBuildBookmarkDisplayNoIcon = (bookmark) => {
+            return `<a href="${bookmark.url}">` +
+                      `<section>` +
+                        `<span>&nbsp;</span>` +
+                        `<span>${bookmark.title}</span>` +
+                      `</section>` + 
+                    `</a>`;
+          };
+
+          let buildBookmarkDisplay = (bookmark) => {
+            return (!!bookmark.icon) ? 
+              buildBookmarkDisplayIcon(bookmark) : 
+              buildBuildBookmarkDisplayNoIcon(bookmark);
+          };
+
+
+          let bookmarksEl = document.getElementById('bookmarks');
+          bookmarksEl.innerHTML = bookmarks.map(b => `${buildBookmarkDisplay(b)}`).join('\n');
+
+          let booksEl = document.getElementById('books');
+          booksEl.innerHTML = books.map(b => `${buildBookmarkDisplay(b)}`).join('\n');
+        }
+
+        if (document.addEventListener) {
+          document.addEventListener('DOMContentLoaded', buildPage);
+        }
+      })();
+    </script>
+  </head>
+  <body>
+      <ul id="bookmarks" class="bookmarks">
+
+      </ul>
+
+      <ul id="books" class="bookmarks">
+
+      </ul>
+  </body>
+</html>

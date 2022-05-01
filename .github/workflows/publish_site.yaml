@@ -1,0 +1,48 @@
+name: Publish Site
+on:
+  push:
+    branches:
+      - 'main'
+jobs:
+  Publish-Site:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install SSH Key And Test Connection
+        run: |
+          mkdir -p ~/.ssh/
+          install -m 600 -D /dev/null ~/.ssh/id
+          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id
+          
+          SSH_HOST_PUBLIC_KEY=$(ssh-keyscan -t ed25519 v4.electriclemur.com 2> /dev/null)
+          echo "$SSH_HOST_PUBLIC_KEY" >> ~/.ssh/known_hosts
+
+          SSH_HOST_PUBLIC_KEY=$(echo "$SSH_HOST_PUBLIC_KEY" | sed 's/^[a-z0-9\.]* //g')
+          echo "{SSH_HOST_PUBLIC_KEY}={${SSH_HOST_PUBLIC_KEY}}" >> $GITHUB_ENV
+
+          SSH_HOST=$(ssh root@v4.electriclemur.com -i ~/.ssh/id "hostname")
+          test "$SSH_HOST" = "lemur-web01"
+      - name: Create site directory
+        run: |
+          ssh root@v4.electriclemur.com -i ~/.ssh/id "mkdir -p /volumes/jw_home/site"
+      - name: Sync Static Files
+        uses: swillner/sftp-sync-action@v1.0
+        with:
+          server: "v4.electriclemur.com"
+          user: "root"
+          user_private_key: "${{ secrets.SSH_KEY }}"
+          host_public_key: "${{ env.SSH_HOST_PUBLIC_KEY}}"
+          local: "./"
+          remote: "/volumes/jw_home/site"
+          mirror_options: "--exclude-glob=.git*/ --exclude-glob=**.psd --verbose"
+      - name: Update permissions
+        run: |
+          ssh root@v4.electriclemur.com -i ~/.ssh/id "chmod -R a+r /volumes/jw_home/site"
+      - name: Restart container
+        run: |
+          ssh root@v4.electriclemur.com -i ~/.ssh/id "docker rm -f jw_home 2> /dev/null 1> /dev/null"
+
+          ssh root@v4.electriclemur.com -i ~/.ssh/id "docker run -d --name jw_home --label 'traefik.http.routers.jw_home.rule=(Host(\`jameswilliams.me\`) && PathPrefix(\`/home\`))' --label 'traefik.http.routers.jw_home.middlewares=jw_home-stripprefix' --label 'traefik.http.middlewares.jw_home-stripprefix.stripprefix.prefixes=/home' --label 'traefik.enable=true' -v /volumes/jw_index/site:/usr/share/nginx/html:ro nginx:1.21.6-alpine"
+      
+
