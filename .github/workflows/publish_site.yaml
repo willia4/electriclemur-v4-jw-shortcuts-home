@@ -44,6 +44,24 @@ jobs:
         run: |
           ssh root@v4.electriclemur.com -i ~/.ssh/id "docker rm -f jw_home 2> /dev/null 1> /dev/null"
 
-          ssh root@v4.electriclemur.com -i ~/.ssh/id "docker run -d --name jw_home --label 'traefik.http.routers.jw_home.rule=(Host(\`jameswilliams.me\`) && PathPrefix(\`/home\`))' --label 'traefik.http.routers.jw_home.middlewares=jw_home-stripprefix' --label 'traefik.http.middlewares.jw_home-stripprefix.stripprefix.prefixes=/home' --label 'traefik.enable=true' -v /volumes/jw_home/site:/usr/share/nginx/html:ro nginx:1.21.6-alpine"
+          CMD=""
+          CMD+="docker run -d --name jw_home "
+          CMD+="--label 'traefik.enable=true' "
+          CMD+="--label 'traefik.http.routers.jw_home.entrypoints=websecure' "
+          CMD+="--label 'traefik.http.routers.jw_home.rule=(Host(\`jameswilliams.me\`) && PathPrefix(\`/home\`))' "
+          CMD+="--label 'traefik.http.routers.jw_home.tls=true' "
+          CMD+="--label 'traefik.http.routers.jw_home.tls.certresolver=le' "
+          CMD+="--label 'traefik.http.routers.jw_home.middlewares=jw_home-stripprefix' "
+          CMD+="--label 'traefik.http.middlewares.jw_home-stripprefix.stripprefix.prefixes=/home' "
+
+          CMD+="--label 'traefik.http.routers.jw_home_redirect.entrypoints=web' "
+          CMD+="--label 'traefik.http.routers.jw_home_redirect.rule=(Host(\`jameswilliams.me\`) && PathPrefix(\`/home\`))' "
+          CMD+="--label 'traefik.http.routers.jw_home_redirect.middlewares=jw_home_redirect' "
+          CMD+="--label 'traefik.http.middlewares.jw_home_redirect.redirectscheme.scheme=https' "
+
+          CMD+="-v /volumes/jw_home/site:/usr/share/nginx/html:ro "
+          CMD+="nginx:1.21.6-alpine "
+
+          ssh root@v4.electriclemur.com -i ~/.ssh/id "$CMD"
       
 
