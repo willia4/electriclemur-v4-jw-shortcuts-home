@@ -45,7 +45,7 @@ jobs:
           ssh root@v4.electriclemur.com -i ~/.ssh/id "docker rm -f jw_home 2> /dev/null 1> /dev/null"
 
           CMD=""
-          CMD+="docker run -d --name jw_home "
+          CMD+="docker run -d --name jw_home --restart=always "
           CMD+="--label 'traefik.enable=true' "
           CMD+="--label 'traefik.http.routers.jw_home.entrypoints=websecure' "
           CMD+="--label 'traefik.http.routers.jw_home.rule=(Host(\`jameswilliams.me\`) && PathPrefix(\`/home\`))' "
