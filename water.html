@@ -61,16 +61,17 @@
 
         timerInfos.forEach(timerInfo => updateTimer(now, timerInfo));
 
-        setInterval(updateDisplay, 1000, timerInfos);
+        setTimeout(updateDisplay, 1000, timerInfos);
       }
 
       document.addEventListener("DOMContentLoaded", () => {
         const problemStart = [document.getElementById("problem-start"), new Date("2023-01-12T12:30:00.000-05:00")]
         const cantFixIt = [document.getElementById("cant-fix-it"), new Date("2023-01-13T14:12:00.000-05:00")];
+        const firstAttempt = [document.getElementById("submitted-application-first-attempt"), new Date("2023-01-13T16:06:00.000-05:00")]
         const applicationSubmitted = [document.getElementById("submitted-application"), new Date("2023-01-14T10:03:00.000-05:00")]
         const couldHaveBeenFixed = [document.getElementById("could-have-been-fixed"), new Date("2023-01-16T15:00:00.000-05:00")]
 
-        updateDisplay([problemStart, cantFixIt, applicationSubmitted, couldHaveBeenFixed]);
+        updateDisplay([problemStart, cantFixIt, firstAttempt, applicationSubmitted, couldHaveBeenFixed]);
       });
       
     </script>
@@ -92,8 +93,14 @@
 
     <section>
       <div class="section-heading">It has been</div>
+      <div class="timer" id="submitted-application-first-attempt"></div>
+      <div class ="section-heading">since <span class="emphasis">we sent the requested information</span> (without having a full understanding of the application process)</div> 
+    </section>
+
+    <section>
+      <div class="section-heading">It has been</div>
       <div class="timer" id="submitted-application"></div>
-      <div class="section-heading">since <span class="emphasis">we submitted</span> the required application</div>
+      <div class="section-heading">since we were given the proper procedure and <span class="emphasis">we submitted</span> the required application</div>
     </section>
 
     <section>
