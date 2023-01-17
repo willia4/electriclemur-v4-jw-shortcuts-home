@@ -1,0 +1,105 @@
+<html>
+  <head>
+    <title>Water Timer</title>
+  </head>
+    <style type="text/css">
+      body { 
+        font-family: Calibri, Candara, Segoe, Segoe UI, Optima, Helvetica, Arial, sans-serif;
+        font-size: 18pt;
+        margin-left: 30px;
+        background-color: #e6f9ff;
+      }
+
+      h1 {
+        text-align: center; font-size: 250%;
+      }
+
+      section {
+        margin-bottom: 15px;
+        
+      }
+
+      section div {
+        display: inline-block;
+      }
+
+      section span {
+        display: inline-block;
+        
+      }
+
+      .section-heading {
+        font-style: italic;
+      }
+
+      .section-heading .emphasis {
+        font-weight: bolder;
+      }
+
+      .timer {
+        font-size: 200%;
+      }
+    </style>
+
+    <script type="text/javascript">
+      
+      function updateTimer(now, timerInfo) {
+        const el = timerInfo[0];
+        const startTime = timerInfo[1];
+        const diff_s = Math.abs(now - startTime) / 1000;
+
+        const diff_hoursComponent = Math.floor(diff_s / (60 * 60));
+        const diff_hoursInSeconds = diff_hoursComponent * 60 * 60;
+        const diff_minutesComponent = Math.floor((diff_s - diff_hoursInSeconds) / 60);
+
+        el.innerHTML = '<span class="hours">' + diff_hoursComponent + '</span><span class="hours-description">&nbsp;hours&nbsp;</span><span class="other">&nbsp;and&nbsp;</span>' +
+                       '<span class="minutes">' + diff_minutesComponent + '</span><span class="minutes-description">&nbsp;minutes</span>';
+      }
+
+      function updateDisplay(timerInfos) {
+        const now = new Date();
+
+        timerInfos.forEach(timerInfo => updateTimer(now, timerInfo));
+
+        setInterval(updateDisplay, 1000, timerInfos);
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const problemStart = [document.getElementById("problem-start"), new Date("2023-01-12T12:30:00.000-05:00")]
+        const cantFixIt = [document.getElementById("cant-fix-it"), new Date("2023-01-13T14:12:00.000-05:00")];
+        const applicationSubmitted = [document.getElementById("submitted-application"), new Date("2023-01-14T10:03:00.000-05:00")]
+        const couldHaveBeenFixed = [document.getElementById("could-have-been-fixed"), new Date("2023-01-16T15:00:00.000-05:00")]
+
+        updateDisplay([problemStart, cantFixIt, applicationSubmitted, couldHaveBeenFixed]);
+      });
+      
+    </script>
+  </head>
+  <body>
+    <h1>What Happened To The Hot Water?</h1>
+
+    <section>
+      <div class="section-heading">It has been</div>
+      <div class="timer" id="problem-start"></div>
+      <div class ="section-heading">since our water was <span  class="emphasis">disconnected</span></div> 
+    </section>
+
+    <section>
+      <div class="section-heading">It has been</div>
+      <div class="timer" id="cant-fix-it"></div>
+      <div class ="section-heading">since <span class="emphasis">we were told we could not fix</span> our hot water without approval</div> 
+    </section>
+
+    <section>
+      <div class="section-heading">It has been</div>
+      <div class="timer" id="submitted-application"></div>
+      <div class="section-heading">since <span class="emphasis">we submitted</span> the required application</div>
+    </section>
+
+    <section>
+      <div class="section-heading">It has been</div>
+      <div class="timer" id="could-have-been-fixed"></div>
+      <div class="section-heading">since <span class="emphasis">it could have been fixed</span> using the plumber's original plan</div>
+    </section>
+  </body>
+</html>
