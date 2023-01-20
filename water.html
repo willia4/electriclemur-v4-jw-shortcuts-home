@@ -46,7 +46,9 @@
       function updateTimer(now, timerInfo) {
         const el = timerInfo[0];
         const startTime = timerInfo[1];
-        const diff_s = Math.abs(now - startTime) / 1000;
+        const endTime = timerInfo.length >= 3 ? timerInfo[2] : now;
+
+        const diff_s = Math.abs(endTime - startTime) / 1000;
 
         const diff_hoursComponent = Math.floor(diff_s / (60 * 60));
         const diff_hoursInSeconds = diff_hoursComponent * 60 * 60;
@@ -65,11 +67,14 @@
       }
 
       document.addEventListener("DOMContentLoaded", () => {
-        const problemStart = [document.getElementById("problem-start"), new Date("2023-01-12T12:30:00.000-05:00")]
-        const cantFixIt = [document.getElementById("cant-fix-it"), new Date("2023-01-13T14:12:00.000-05:00")];
-        const firstAttempt = [document.getElementById("submitted-application-first-attempt"), new Date("2023-01-13T16:06:00.000-05:00")]
-        const applicationSubmitted = [document.getElementById("submitted-application"), new Date("2023-01-14T10:03:00.000-05:00")]
-        const couldHaveBeenFixed = [document.getElementById("could-have-been-fixed"), new Date("2023-01-16T15:00:00.000-05:00")]
+        const approvalReceivedTime = new Date("2023-01-18T10:32:00.000-05:00");
+        const problemFixedTime = new Date("2023-01-20T14:14:00.000-05:00");
+
+        const problemStart = [document.getElementById("problem-start"), new Date("2023-01-12T12:30:00.000-05:00"), problemFixedTime];
+        const cantFixIt = [document.getElementById("cant-fix-it"), new Date("2023-01-13T14:12:00.000-05:00"), problemFixedTime];
+        const firstAttempt = [document.getElementById("submitted-application-first-attempt"), new Date("2023-01-13T16:06:00.000-05:00"), approvalReceivedTime];
+        const applicationSubmitted = [document.getElementById("submitted-application"), new Date("2023-01-14T10:03:00.000-05:00"), approvalReceivedTime];
+        const couldHaveBeenFixed = [document.getElementById("could-have-been-fixed"), new Date("2023-01-16T15:00:00.000-05:00"), problemFixedTime];
 
         updateDisplay([problemStart, cantFixIt, firstAttempt, applicationSubmitted, couldHaveBeenFixed]);
       });
@@ -80,33 +85,33 @@
     <h1>What Happened To The Hot Water?</h1>
 
     <section>
-      <div class="section-heading">It has been</div>
+      <div class="section-heading">It took </div>
       <div class="timer" id="problem-start"></div>
-      <div class ="section-heading">since our water was <span  class="emphasis">disconnected</span></div> 
+      <div class ="section-heading">to fix the hot water since it was <span  class="emphasis">disconnected</span></div> 
     </section>
 
     <section>
-      <div class="section-heading">It has been</div>
+      <div class="section-heading">It took</div>
       <div class="timer" id="cant-fix-it"></div>
-      <div class ="section-heading">since <span class="emphasis">we were told we could not fix</span> our hot water without approval</div> 
+      <div class ="section-heading">to fix the hot water after <span class="emphasis">we were told we could not fix</span> it without approval</div> 
     </section>
 
     <section>
-      <div class="section-heading">It has been</div>
+      <div class="section-heading">It took </div>
       <div class="timer" id="submitted-application-first-attempt"></div>
-      <div class ="section-heading">since <span class="emphasis">we sent the requested information</span> (without having a full understanding of the application process)</div> 
+      <div class ="section-heading">after we <span class="emphasis">we sent the requested information</span> (without having a full understanding of the application process) to have it approved</div> 
     </section>
 
     <section>
-      <div class="section-heading">It has been</div>
+      <div class="section-heading">It took</div>
       <div class="timer" id="submitted-application"></div>
-      <div class="section-heading">since we were given the proper procedure and <span class="emphasis">we submitted</span> the required application</div>
+      <div class="section-heading">to receive approval after <span class="emphasis">we submitted</span> the required application</div>
     </section>
 
     <section>
-      <div class="section-heading">It has been</div>
+      <div class="section-heading">It took</div>
       <div class="timer" id="could-have-been-fixed"></div>
-      <div class="section-heading">since <span class="emphasis">it could have been fixed</span> using the plumber's original plan</div>
+      <div class="section-heading">to finally fix the hot water after <span class="emphasis">it could have been fixed</span> using the plumber's original plan</div>
     </section>
   </body>
 </html>
