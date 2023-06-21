@@ -1,0 +1,327 @@
+<html>
+  <head>
+    <title>Final Fantasy XIV - Job Chooser</title>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const players = Array.from(document.querySelectorAll("div.player"));
+        const button = document.getElementById("action-button");
+
+        /**
+         * @template {Base} T
+         * @function
+         * @param {Array<T>} arr
+         * @returns {T}
+         */
+        function randomArrayEntry(arr) {
+          if (!arr || !arr.length) {
+            return undefined;
+          }
+          else if (arr.length === 1) {
+            return arr[0];
+          }
+
+          return arr[Math.floor(Math.random() * arr.length)];
+        }
+
+        /**
+         * @function
+         * @param {Element} playerEl
+         */
+        function getAllowedRolesForPlayer(playerEl) {
+          const checkBoxes = Array.from(playerEl.querySelectorAll("input"));
+          return checkBoxes
+            .filter(cb => cb.checked)
+            .map(cb => cb.name);
+        }
+
+        /**
+         * @function
+         * @param {Element} players
+         */
+        function makeRandomParty(players) {
+          /** @type {Map<Element, string>} */
+          const party = new Map();
+          for (const player of players) {
+            const allowedRoles = getAllowedRolesForPlayer(player);
+            party.set(player, randomArrayEntry(allowedRoles));
+          }
+          return party;
+        }
+
+        /**
+         * @function
+         * @param {Map<Element, string>} party
+         */
+        function isLegalParty(party) {
+          let neededRoles = ['tank', 'healer', 'dps', 'dps'];
+          for (const assignedRole of party.values()) {
+            const idx = neededRoles.indexOf(assignedRole);
+            if (idx < 0) {
+              return false;
+            }
+            neededRoles.splice(idx, 1);
+          }
+          return true;
+        }
+
+        /**
+         * @function
+         * @param {string} role
+         * @returns {string}
+         */
+        function getRoleIcon(role) {
+          const p1 = players[0];
+          const checkboxes = Array.from(p1.querySelectorAll("input"));
+          const roleCheckbox = checkboxes.find(cb => cb.name === role);
+          if (roleCheckbox) {
+            const roleDiv = roleCheckbox.parentElement;
+            const img = Array.from(roleDiv.querySelectorAll("img"));
+            if (img && img.length) {
+              return img[0].src;
+            }
+          }
+          return undefined;
+        }
+
+        /**
+         * @function
+         * @param {Element} player
+         * @param {string} answerHtml
+         */
+        function setPlayerAnswer(player, answerHtml) {
+          const answer = player.querySelector("div.answer");
+          answer.innerHTML = answerHtml;
+        }
+
+        /**
+         * @function
+         * @param {Map<Element, string>} party
+         */
+        function displayParty(party) {
+          for(const player of party.keys()) {
+            const role = party.get(player);
+            const roleIcon = getRoleIcon(role);
+            if (roleIcon) {
+              let html = '<span class="good"><img src="' + roleIcon + '">' + role + '</span>';
+              setPlayerAnswer(player, html);
+            }
+            else {
+              setPlayerAnswer(player, '<span class="error">Could not find role icon for ' + role + '</span>')
+            }
+          }
+        }
+
+        button.addEventListener("click", () => {
+          for(const p of players) {
+            setPlayerAnswer(p, "⏳ Working...")
+          }
+
+          button.disabled = true;
+
+          // disabling the button does something something something with the rendering so the page freezes until the
+          // method ends. Force the event loop to loop by running the bulk of the work in a timeout callback.
+          setTimeout(() => {
+            // this is dumb; I couldn't figure out how to actually solve this in an intelligent way --
+            // so I just try random feasible parties over and over again for a few seconds and take
+            // the first legal party (otherwise, display a timeout error)
+            const startTime = new Date();
+            const timeoutMilliseconds = 3000;
+
+            let foundParty = undefined;
+            while ((new Date() - startTime) < timeoutMilliseconds) {
+              const party = makeRandomParty(players);
+              if (isLegalParty(party)) {
+                foundParty = party;
+                break;
+              }
+            }
+
+            if (!foundParty) {
+              players.forEach(p => setPlayerAnswer(p, '<span class="error">TIMEOUT</span>'));
+            }
+            else {
+              displayParty(foundParty);
+            }
+
+            button.disabled = false;
+          }, 0);
+
+        })
+      });
+    </script>
+    <style type="text/css">
+      main {
+        display: flex;
+        flex-wrap: wrap;
+        width: 100%;
+      }
+
+      .player {
+        display: inline-block;
+        margin-left: 30px;
+        margin-right: 30px;
+        margin-bottom: 30px;
+        min-width: 20vw;
+        border-left: solid 1px #000000;
+        border-bottom: solid 1px #000000;
+      }
+
+      header {
+        text-align: center;
+        font-size: 20pt;
+        font-family: Verdana, Geneva, Tahoma, sans-serif;
+        text-transform: uppercase;
+        margin-bottom: 15px;
+        border-bottom: solid 2px #efefef;
+        width: 80%;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      section {
+        padding-bottom: 15px;
+        margin-left: 5px;
+      }
+
+      section h3 {
+        font-family: Verdana, Geneva, Tahoma, sans-serif;
+        text-transform: lowercase;
+        margin-bottom: 5px;
+      }
+
+      section div.job {
+        margin-bottom: 3px;
+      }
+      section div.job label {
+        display: flex;
+        align-items: center;
+      }
+
+      section div.job img {
+        width: 25px;
+        margin-right: 3px;
+      }
+
+      .answer-section h3 {
+        text-align: center;
+      }
+      div.answer {
+        font-family: Verdana, Geneva, Tahoma, sans-serif;
+        margin-top: 15px;
+        display: flex;
+        align-items: center;
+      }
+
+      div.answer span {
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      div.answer span.question img {
+        width: 32px;
+      }
+
+      div.answer span.error {
+        font-weight: bold;
+      }
+
+      div.answer span.good {
+        display: flex;
+        align-items: center;
+        text-transform: uppercase;
+        font-weight: bold;
+        font-size: 15pt;
+      }
+
+      div.answer span.good img {
+        margin-right: 3px;
+      }
+
+      #button-container {
+        flex-basis: 100%;
+        text-align: center;
+        margin-top: 30px;
+      }
+
+      #button-container button {
+        font-size: 15pt;
+        padding: 15px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <main>
+      <div class="player" id="panda">
+        <header>🐼 Panda</header>
+
+        <section>
+          <h3>Can Play</h3>
+          <div class="job"><label><input name="tank" type="checkbox" checked/><img src="ff14_role_tank.png"/>Tank</label> </div>
+          <div class="job"><label><input name="healer" type="checkbox" checked/><img src="ff14_role_healer.png"/>Healer</label></div>
+          <div class="job"><label><input name="dps" type="checkbox"/><img src="ff14_role_dps.png"/>DPS</label></div>
+        </section>
+
+        <section class="answer-section">
+          <h3>Should Play</h3>
+          <div class="answer"><span class="question"><img src="ff14_unlock_quest.png"/></span></div>
+        </section>
+      </div>
+
+      <div class="player" id="tim">
+        <header>🦖 Tim</header>
+
+        <section>
+          <h3>Can Play</h3>
+          <div class="job"><label><input name="tank" type="checkbox" checked/><img src="ff14_role_tank.png"/>Tank</label> </div>
+          <div class="job"><label><input name="healer" type="checkbox" checked/><img src="ff14_role_healer.png"/>Healer</label></div>
+          <div class="job"><label><input name="dps" type="checkbox" checked/><img src="ff14_role_dps.png"/>DPS</label></div>
+
+        </section>
+
+        <section class="answer-section">
+          <h3>Should Play</h3>
+          <div class="answer"><span class="question"><img src="ff14_unlock_quest.png"/></span></div>
+        </section>
+      </div>
+
+      <div class="player" id="bran">
+        <header>🎃 Bran</header>
+
+        <section>
+          <h3>Can Play</h3>
+          <div class="job"><label><input name="tank" type="checkbox"/><img src="ff14_role_tank.png"/>Tank</label> </div>
+          <div class="job"><label><input name="healer" type="checkbox"/><img src="ff14_role_healer.png"/>Healer</label></div>
+          <div class="job"><label><input name="dps" type="checkbox" checked/><img src="ff14_role_dps.png"/>DPS</label></div>
+  
+        </section>
+
+        <section class="answer-section">
+          <h3>Should Play</h3>
+          <div class="answer"><span class="question"><img src="ff14_unlock_quest.png"/></span></div>
+        </section>
+      </div>
+
+      <div class="player" id="james">
+        <header>🤖 James</header>
+
+        <section>
+          <h3>Can Play</h3>
+          <div class="job"><label><input name="tank" type="checkbox" checked/><img src="ff14_role_tank.png"/>Tank</label> </div>
+          <div class="job"><label><input name="healer" type="checkbox" checked/><img src="ff14_role_healer.png"/>Healer</label></div>
+          <div class="job"><label><input name="dps" type="checkbox" checked/><img src="ff14_role_dps.png"/>DPS</label></div>
+
+        </section>
+
+        <section class="answer-section">
+          <h3>Should Play</h3>
+          <div class="answer"><span class="question"><img src="ff14_unlock_quest.png"/></span></div>
+        </section>
+      </div>
+
+      <div id="button-container">
+        <button id="action-button">Choose Party</button>
+      </div>
+    </main>
+  </body>
+</html>
