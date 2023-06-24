@@ -114,44 +114,70 @@
           }
         }
 
-        button.addEventListener("click", () => {
-          for(const p of players) {
-            setPlayerAnswer(p, "⏳ Working...")
+        /**
+         * @template {Base} T
+         * @function
+         * @param {Array<Array<T>>} array
+         * @returns {Array<Array<T>>}
+         */
+        function permutationsForArrayOfArrays(array) {
+          if (!array || !array.length) {
+            return []
           }
 
-          button.disabled = true;
+          else if (array.length === 1) {
+            return array[0].map((item) => [ item ])
+          }
 
-          // disabling the button does something something something with the rendering so the page freezes until the
-          // method ends. Force the event loop to loop by running the bulk of the work in a timeout callback.
-          setTimeout(() => {
-            // this is dumb; I couldn't figure out how to actually solve this in an intelligent way --
-            // so I just try random feasible parties over and over again for a few seconds and take
-            // the first legal party (otherwise, display a timeout error)
-            const startTime = new Date();
-            const timeoutMilliseconds = 3000;
+          else {
+            /** @type {Array<Array<T>>} */
+            let result = [];
 
-            let foundParty = undefined;
-            while ((new Date() - startTime) < timeoutMilliseconds) {
-              const party = makeRandomParty(players);
-              if (isLegalParty(party)) {
-                foundParty = party;
-                break;
+            const first = array[0];
+            const rest = permutationsForArrayOfArrays(array.slice(1));
+
+            for (const r of rest) {
+              for (const f of first) {
+                result.push([f, ...r]);
               }
             }
 
-            if (!foundParty) {
-              players.forEach(p => setPlayerAnswer(p, '<span class="error">TIMEOUT</span>'));
-            }
-            else {
-              displayParty(foundParty);
-            }
+            return result;
+          }
+        }
 
-            button.disabled = false;
-          }, 0);
+        button.addEventListener("click", () => {
+          for(const p of players) {
+            setPlayerAnswer(p, "")
+          }
 
+          // turn all of the "available role" items for each player into an array of array of roles
+          const roles = players.map(p => getAllowedRolesForPlayer(p));
+          // gather all permutations of those roles
+          const permutations = permutationsForArrayOfArrays(roles);
+
+          // turn those back into party items by mapping the index of a permutation role to its player
+          /** @type {Array<Map<Element, string>>} */
+          const possibleParties = permutations.map(roles => {
+            return roles.reduce((acc, role, i) => {
+              acc.set(players[i], role);
+              return acc;
+            }, new Map())
+          });
+
+          // only care about legal parties
+          const legalParties = possibleParties.filter(isLegalParty);
+          if (legalParties.length) {
+            // pick a valid legal party at random and display it
+            displayParty(randomArrayEntry(legalParties));
+          }
+          else {
+            players.forEach(p => setPlayerAnswer(p, '<span class="error">Invalid Config</span>'));
+          }
         })
       });
     </script>
+
     <style type="text/css">
       main {
         display: flex;
