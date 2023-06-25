@@ -9,6 +9,8 @@
         const players = Array.from(document.querySelectorAll("div.player"));
         const button = document.getElementById("action-button");
 
+        /** @typedef {Map<Element, string>} party */
+
         /**
          * @template {Base} T
          * @function
@@ -40,9 +42,10 @@
         /**
          * @function
          * @param {Element} players
+         * @returns {party}
          */
         function makeRandomParty(players) {
-          /** @type {Map<Element, string>} */
+          /** @type {party} */
           const party = new Map();
           for (const player of players) {
             const allowedRoles = getAllowedRolesForPlayer(player);
@@ -53,7 +56,7 @@
 
         /**
          * @function
-         * @param {Map<Element, string>} party
+         * @param {party} party
          */
         function isLegalParty(party) {
           let neededRoles = ['tank', 'healer', 'dps', 'dps'];
@@ -106,7 +109,7 @@
 
         /**
          * @function
-         * @param {Map<Element, string>} party
+         * @param {party} party
          */
         function displayParty(party) {
           for(const player of party.keys()) {
@@ -157,7 +160,52 @@
           }
         }
 
+        /** @function
+         *  @returns {party | undefined}
+         */
+        function getCurrentParty() {
+          /** @function
+           * @param {Element} p
+           */
+          function getRole(p) {
+            if (!p) { return undefined; }
+            if (p.classList.contains("job-tank")) { return "tank"; }
+            if (p.classList.contains("job-healer")) { return "healer"; }
+            if (p.classList.contains("job-dps")) { return "dps"; }
+            return undefined;
+          }
+
+          /** @type {party} */
+          let r = new Map();
+          players.forEach((p) => r.set(p, getRole(p)));
+
+          const hasError = !!Array.from(r).filter(a => a[1] === undefined).length;
+          if (hasError) {
+            return undefined;
+          }
+          return r;
+        }
+
+        /** @function
+         *  @param {party} a
+         *  @param {party} b
+         *  @returns {boolean}
+         */
+        function partiesAreEqual(a, b) {
+          if (!a && !b) { return true; }
+          if (!a || !b) { return false; }
+          if (a.size !== b.size) { return false; }
+          for(const p of a.keys()) {
+            if (!b.has(p)) { return false; }
+
+            if (a.get(p) !== b.get(p)) { return false; }
+          }
+          return true;
+        }
+
         button.addEventListener("click", () => {
+          const currentParty = getCurrentParty();
+
           for(const p of players) {
             setPlayerAnswer(p, "")
           }
@@ -178,9 +226,15 @@
 
           // only care about legal parties
           const legalParties = possibleParties.filter(isLegalParty);
-          if (legalParties.length) {
+          // remove the current party if that's not the only option
+          const finalPotentialParties =
+            currentParty && legalParties.length > 1
+            ? legalParties.filter(lp => !partiesAreEqual(lp, currentParty))
+            : legalParties;
+
+          if (finalPotentialParties.length) {
             // pick a valid legal party at random and display it
-            displayParty(randomArrayEntry(legalParties));
+            displayParty(randomArrayEntry(finalPotentialParties));
           }
           else {
             players.forEach(p => setPlayerAnswer(p, '<span class="error"><img src="ff14_locked_quest.png">Invalid</span>'));
