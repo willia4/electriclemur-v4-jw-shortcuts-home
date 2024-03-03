@@ -1,0 +1,42 @@
+<html>
+<head>
+  <script>
+    (() => {
+      document.addEventListener('DOMContentLoaded', () => {
+        const div = document.getElementById('the-date');
+        let d = new Date();
+        d.setDate(d.getDate() + 75);
+
+        div.innerText = d.toLocaleString('default', { month: 'long', day: '2-digit', year: 'numeric'});
+      });
+    })();
+  </script>
+  <style>
+    main {
+      width: 75%;
+      margin-left: auto;
+      margin-right: auto;
+      margin-top: 35px;
+
+      font-family: Verdana, Geneva, Tahoma, sans-serif;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 300%;
+    }
+
+    #the-date {
+      text-align: center;
+      font-weight: bold;
+      font-size: 200%;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>75 Days From Today</h1>
+    <div id="the-date"></div>
+  </main>
+</body>
+</html>
