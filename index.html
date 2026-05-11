@@ -113,9 +113,9 @@
     <script>
       (function() {
         
-        let buildPage = () => {
+        const buildPage = () => {
 
-          let bookmarks = [
+          const bookmarks = [
             { title: 'mastodon', url: 'https://forlorn.computer/home', icon: 'mastodon.png', color: 'black', background: '#6364FF' },
             { title: 'rss', url: 'https://feedbin.com/', icon: 'rss.png', color: 'white', background: "#ea7819" },
             { title: 'lobsters', url: 'https://lobste.rs/', icon: 'lobsters.png', color: 'white', background: '#ff0000' },
@@ -128,9 +128,8 @@
             { title: 'lwn', url: 'https://lwn.net/', icon: 'lwn.png', color: '#ffffff', background: '#000000' },
             { title: 'daring fireball', url: 'http://daringfireball.net/', icon: 'daring_fireball.png', color: '#dddddd', background: '#4a525a' },
             
-            
+            { title: 'the verge', url: 'https://www.theverge.com', icon: 'the_verge.png', color: '#ffffff', background: '#4902f4' },
             { title: 'post & courier', url: 'https://www.postandcourier.com/', icon: 'p_and_c.png', color: 'white', background: '#1d8acb' },
-
             // { title: 'washington post', url: 'https://www.washingtonpost.com/', icon: 'wp_inverse.png', color: 'white', background: 'black' },
             // { title: 'facebook', url: 'http://www.facebook.com/home.php', icon: 'facebook.png', color: 'white', background: '#3b5998' },
             { title: 'new york times', url: 'https://www.nytimes.com/section/todayspaper?redirect_uri=https%3A%2F%2Fwww.nytimes.com%2F', icon: 'nyt.png', color: 'white', background: 'black' },
@@ -141,7 +140,7 @@
 
           ];
 
-          let books = [
+          const books = [
             { title: 'phb', url: 'https://www.dndbeyond.com/sources/phb', icon: 'dnd_phb.png', color: 'white', background: 'black' },
             { title: 'dmg', url: 'https://www.dndbeyond.com/sources/dmg', icon: 'dnd_dmg.png', color: 'white', background: 'black' },
             { title: 'monster manual', url: 'https://www.dndbeyond.com/sources/mm', icon: 'dnd_monster_manual.png', color: 'white', background: 'black' },
@@ -163,7 +162,7 @@
             { title: 'yawning portal', url: 'https://www.dndbeyond.com/sources/tftyp', icon: 'dnd_yawning_portal.png', color: 'white', background: 'black' }
           ];
 
-          let buildBookmarkDisplayIcon = (bookmark) => {
+          const buildBookmarkDisplayIcon = (bookmark) => {
             let textStyle = '';
             if (bookmark.color) { textStyle = textStyle + `color: ${bookmark.color} !important; `; };
 
@@ -181,7 +180,7 @@
                     `</a>`;
           };
 
-          let buildBuildBookmarkDisplayNoIcon = (bookmark) => {
+          const buildBuildBookmarkDisplayNoIcon = (bookmark) => {
             return `<a href="${bookmark.url}">` +
                       `<section>` +
                         `<span>&nbsp;</span>` +
@@ -190,17 +189,17 @@
                     `</a>`;
           };
 
-          let buildBookmarkDisplay = (bookmark) => {
+          const buildBookmarkDisplay = (bookmark) => {
             return (!!bookmark.icon) ? 
               buildBookmarkDisplayIcon(bookmark) : 
               buildBuildBookmarkDisplayNoIcon(bookmark);
           };
 
 
-          let bookmarksEl = document.getElementById('bookmarks');
+          const bookmarksEl = document.getElementById('bookmarks');
           bookmarksEl.innerHTML = bookmarks.map(b => `${buildBookmarkDisplay(b)}`).join('\n');
 
-          let booksEl = document.getElementById('books');
+          const booksEl = document.getElementById('books');
           booksEl.innerHTML = books.map(b => `${buildBookmarkDisplay(b)}`).join('\n');
         }
 
